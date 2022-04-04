@@ -1,0 +1,9 @@
+$ docker start -i naughty_lamport
+
+root@a46cf2a2868b:/# apt install -y curl
+
+root@a46cf2a2868b:/# curl -sL https://deb.nodesource.com/setup_16.x | bash
+root@a46cf2a2868b:/# apt install -y nodejs
+
+root@a46cf2a2868b:/# node /usr/src/app/index.js
+Hello World

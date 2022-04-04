@@ -1,0 +1,8 @@
+$ docker container start -i naughty_lamport
+
+root@a46cf2a2868b:/# apt-get update
+root@a46cf2a2868b:/# apt-get -y install nano
+
+root@a46cf2a2868b:/# nano /usr/src/app/index.js
+root@a46cf2a2868b:/# cat /usr/src/app/index.js
+console.log('Hello World')
