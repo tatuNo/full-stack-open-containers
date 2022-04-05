@@ -1,0 +1,33 @@
+$ docker container ls
+CONTAINER ID   IMAGE     COMMAND                  CREATED             STATUS             PORTS                     NAMES
+f10a29a04066   mongo     "docker-entrypoint.s…"   About an hour ago   Up About an hour   0.0.0.0:3456->27017/tcp   todo-backend_mongo_1
+
+$ docker exec -it todo-backend_mongo_1 bash
+
+root@f10a29a04066:/#
+root@f10a29a04066:/# mongo -u root -p example
+
+> show dbs
+admin         0.000GB
+config        0.000GB
+local         0.000GB
+the_database  0.000GB
+
+> use the_database
+switched to db the_database
+
+> show collections
+todos
+
+> db.todos.insertOne({ text: "Increase the number of tools in my toolbelt", done: false })
+{
+        "acknowledged" : true,
+        "insertedId" : ObjectId("624c1c21e9b37849da7218e9")
+}
+
+> db.todos.find({})
+{ "_id" : ObjectId("624c07adcbed2379db6854a1"), "done" : true, "text" : "Write codings" }
+{ "_id" : ObjectId("624c07adcbed2379db6854a2"), "text" : "Learn about containers", "done" : false }
+{ "_id" : ObjectId("624c1c21e9b37849da7218e9"), "text" : "Increase the number of tools in my toolbelt", "done" : false }
+
+
