@@ -2,15 +2,22 @@ version: '3.8'
 
 services:
   app:
-    image: todo-front-dev
+    image: todo-frontend
     build:
       context: ./todo-frontend
-      dockerfile: dev.Dockerfile
-    environment:
-     - REACT_APP_BACKEND_URL=http://localhost:8080/api
-    volumes:
-      - ./todo-frontend:/usr/src/app
-    container_name: todo-front-dev
+      dockerfile: Dockerfile
+    container_name: todo-frontend
+  server:
+    image: todo-backend
+    build:
+      context: ./todo-backend
+      dockerfile: Dockerfile
+    environment: 
+      - REDIS_URL=redis://cache
+      - MONGO_URL=mongodb://the_username:the_password@database/the_database
+    depends_on:
+     - database
+    container_name: todo-backend
   nginx:
     image: nginx:1.20.1
     environment:
@@ -21,21 +28,8 @@ services:
       - 8080:81
     container_name: reverse-proxy
     depends_on:
-      - todo-front-dev
-      - todo-back-dev
-  server:
-    image: todo-back-dev
-    build:
-      context: ./todo-backend
-      dockerfile: dev.Dockerfile
-    volumes:
-      - ./todo-backend:/usr/src/app
-    environment: 
-      - REDIS_URL=redis://cache
-      - MONGO_URL=mongodb://the_username:the_password@database/the_database
-    depends_on:
-     - database
-    container_name: todo-back-dev
+      - todo-frontend
+      - todo-backend
   mongo:
     image: mongo
     environment:
@@ -44,11 +38,11 @@ services:
       MONGO_INITDB_DATABASE: the_database
     volumes: 
       - ./todo-backend/mongo/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
-      - ./todo-backend/mongo_data:/data/db
+      - ./mongo_data:/data/db
     container_name: database
   redis:
     image: redis
     command: ['redis-server', '--appendonly', 'yes']
     volumes:
-      - ./todo-backend/redis_data:/data
+      - ./redis_data:/data
     container_name: cache
