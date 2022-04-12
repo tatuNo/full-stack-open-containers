@@ -10,4 +10,6 @@ services:
       - ./:/usr/src/app
     ports:
       - 3000:3000
+    environment:
+     - REACT_APP_BACKEND_URL=http://localhost:3003
     container_name: todo-front-dev
