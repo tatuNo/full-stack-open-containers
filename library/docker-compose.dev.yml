@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  app:
+    image: library-front-dev
+    build:
+      context: ./frontend
+      dockerfile: dev.Dockerfile
+    environment:
+      - REACT_APP_WS_URL=ws://localhost:8080/ws/
+      - REACT_APP_BACKEND_URL=http://localhost:8080/api/
+    volumes:
+      - ./frontend:/usr/src/app
+    container_name: library-front-dev
+  nginx:
+    image: nginx:1.20.1
+    environment:
+      - NGINX_PORT=81
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - 8080:81
+    container_name: reverse-proxy
+    depends_on:
+      - library-front-dev
+      - library-back-dev
+  server:
+    image: library-back-dev
+    build:
+      context: ./backend
+      dockerfile: dev.Dockerfile
+    volumes:
+      - ./backend:/usr/src/app
+    environment: 
+      - MONGODB_URL=mongodb://the_username:the_password@library-database/the_database
+    depends_on:
+     - library-database
+    container_name: library-back-dev
+  mongo:
+    image: mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+      MONGO_INITDB_DATABASE: the_database
+    volumes: 
+      - ./backend/mongo/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
+      - ./mongo_data:/data/db
+    container_name: library-database
