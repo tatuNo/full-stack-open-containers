@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  app:
+    image: library-front
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: library-front
+  server:
+    image: library-back
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment: 
+      - MONGODB_URL=mongodb://the_username:the_password@database/the_database
+    depends_on:
+     - database
+    container_name: library-back
+  nginx:
+    image: nginx:1.20.1
+    environment:
+      - NGINX_PORT=81
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - 8080:81
+    container_name: reverse-proxy
+    depends_on:
+      - library-front
+      - library-back
+  mongo:
+    image: mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+      MONGO_INITDB_DATABASE: the_database
+    volumes: 
+      - ./backend/mongo/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
+      - ./mongo_data:/data/db
+    container_name: database
